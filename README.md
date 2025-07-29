@@ -11,6 +11,7 @@ This project implements a Model Context Protocol (MCP) server that allows AI ass
 Currently implemented:
 
 ### Work Item Management
+
 - **Query Work Items**: Search for work items using WIQL queries
 - **Get Work Item Details**: View complete work item information
 - **Create Work Items**: Add new tasks, bugs, user stories, and other work item types
@@ -20,6 +21,7 @@ Currently implemented:
 - **Parent-Child Relationships**: Establish hierarchy between work items
 
 ### Project Management
+
 - **Get Projects**: View all accessible projects in the organization
 - **Get Teams**: List all teams within the organization
 - **Team Members**: View team membership information
@@ -27,6 +29,7 @@ Currently implemented:
 - **Team Iterations**: Access team iteration/sprint configurations
 
 Planned features:
+
 - **Pipeline Operations**: Query pipeline status and trigger new pipeline runs
 - **Pull Request Handling**: Create, update, and review Pull Requests
 - **Sprint Management**: Plan and manage sprints and iterations
