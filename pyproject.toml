@@ -59,3 +59,5 @@ exclude = [
     "pyproject.toml"
 ]
 
+[tool.uv]
+allow-insecure-host = ["pypi.org","files.pythonhosted.org"]

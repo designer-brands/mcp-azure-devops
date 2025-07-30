@@ -28,6 +28,12 @@ Currently implemented:
 - **Team Area Paths**: Retrieve area paths assigned to teams
 - **Team Iterations**: Access team iteration/sprint configurations
 
+### Wiki Management
+
+- **Search Wiki**: Search for wiki pages using a query
+- **Get Wiki Page by Path**: View complete wiki page information by path
+- **Get Wiki Page by ID**: View complete wiki page information by ID
+
 Planned features:
 
 - **Pipeline Operations**: Query pipeline status and trigger new pipeline runs
