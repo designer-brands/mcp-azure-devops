@@ -1,5 +1,6 @@
 # Tools for interacting with the Azure DevOps Wiki
-from mcp import Tool
+
+from urllib.parse import unquote
 
 from .common import AzureDevOpsClientError, get_search_client, get_wiki_client
 
@@ -26,53 +27,76 @@ def _search_wiki_impl(search_client, query):
 - **Wiki:** {result.wiki.name} ({result.wiki.id})"""
         ]
 
-        if hasattr(result, "hits") and result.hits:
-            hit_lines = ["- **Content Highlights:**"]
-            for hit in result.hits:
-                if (
-                    hasattr(hit, "field_reference_name")
-                    and hasattr(hit, "highlights")
-                    and hit.highlights
-                ):
-                    highlights_str = " ... ".join(hit.highlights)
-                    hit_lines.append(
-                        f"  - **{hit.field_reference_name}:** {highlights_str}"
-                    )
-
-            if len(hit_lines) > 1:
-                page_details.append("\n".join(hit_lines))
-
         formatted_results.append("\n".join(page_details))
 
     return "\n\n".join(formatted_results)
 
 
-def _get_wiki_by_path_impl(wiki_client, wiki_id, path):
+def _format_page(page):
+    """Formats a wiki page with frontmatter."""
+    frontmatter = [
+        "---",
+        f"id: {getattr(page, 'id', 'N/A')}",
+        f"path: {getattr(page, 'path', 'N/A')}",
+        f"order: {getattr(page, 'order', 'N/A')}",
+        f"url: {getattr(page, 'url', 'N/A')}",
+    ]
+
+    if hasattr(page, "sub_pages") and page.sub_pages:
+        frontmatter.append("sub_pages:")
+        for sub_page in page.sub_pages:
+            sub_page_details = [
+                f"  - path: {getattr(sub_page, 'path', 'N/A')}",
+                f"    id: {getattr(sub_page, 'id', 'N/A')}",
+                f"    order: {getattr(sub_page, 'order', 'N/A')}",
+                f"    url: {getattr(sub_page, 'url', 'N/A')}",
+            ]
+            frontmatter.extend(sub_page_details)
+
+    frontmatter.append("---")
+
+    frontmatter_str = "\n".join(frontmatter)
+    content = getattr(page, "content", "")
+
+    return f"{frontmatter_str}\n\n{content}"
+
+
+def _get_wiki_by_path_impl(wiki_client, project, wiki_id, path):
     """Implementation of getting a wiki page by path."""
-    page = wiki_client.get_page(
+
+    # replace - with space and remove .md extension
+    correct_path = path.replace("-", " ")
+    if correct_path.endswith(".md"):
+        correct_path = correct_path[:-3]
+
+    correct_path = unquote(correct_path)
+
+    result = wiki_client.get_page(
+        project=project,
         wiki_identifier=wiki_id,
-        path=path,
-        recursion_level="full",
+        path=correct_path,
+        recursion_level="oneLevel",
         include_content=True,
     )
-    return f"# {page.path}\n{page.content}"
+    return _format_page(result.page)
 
 
-def _get_wiki_by_id_impl(wiki_client, wiki_id, id):
+def _get_wiki_by_id_impl(wiki_client, project, wiki_id, id):
     """Implementation of getting a wiki page by id."""
-    page = wiki_client.get_page_by_id(
+    result = wiki_client.get_page_by_id(
+        project=project,
         wiki_identifier=wiki_id,
         id=id,
-        recursion_level="full",
+        recursion_level="oneLevel",
         include_content=True,
     )
-    return f"# {page.path}\n{page.content}"
+    return _format_page(result.page)
 
 
 def register_tools(mcp):
     """Register wiki tools with the MCP server."""
 
-    @Tool(mcp=mcp)
+    @mcp.tool()
     def search_wiki(query: str):
         """Search Azure DevOps Wiki to find related material for a given query.
 
@@ -93,8 +117,8 @@ def register_tools(mcp):
         except AzureDevOpsClientError as e:
             return f"Error: {str(e)}"
 
-    @Tool(mcp=mcp)
-    def get_wiki_by_path(wiki_id: str, path: str):
+    @mcp.tool()
+    def get_wiki_by_path(project: str, wiki_id: str, path: str):
         """Get Azure DevOps Wiki content by path returned from search_wiki.
 
         Use this tool when you need to:
@@ -102,6 +126,7 @@ def register_tools(mcp):
         - Read a specific document from the wiki
 
         Args:
+            project: The ID or name of the project
             wiki_id: The ID of the wiki
             path: The path to the wiki page
 
@@ -110,12 +135,12 @@ def register_tools(mcp):
         """
         try:
             wiki_client = get_wiki_client()
-            return _get_wiki_by_path_impl(wiki_client, wiki_id, path)
+            return _get_wiki_by_path_impl(wiki_client, project, wiki_id, path)
         except AzureDevOpsClientError as e:
             return f"Error: {str(e)}"
 
-    @Tool(mcp=mcp)
-    def get_wiki_by_id(wiki_id: str, id: int):
+    @mcp.tool()
+    def get_wiki_by_id(project: str, wiki_id: str, id: int):
         """Get Azure DevOps Wiki content by id returned from search_wiki.
 
         Use this tool when you need to:
@@ -123,6 +148,7 @@ def register_tools(mcp):
         - Read a specific document from the wiki using its unique identifier
 
         Args:
+            project: The ID or name of the project
             wiki_id: The ID of the wiki
             id: The ID of the wiki page
 
@@ -131,6 +157,6 @@ def register_tools(mcp):
         """
         try:
             wiki_client = get_wiki_client()
-            return _get_wiki_by_id_impl(wiki_client, wiki_id, id)
+            return _get_wiki_by_id_impl(wiki_client, project, wiki_id, id)
         except AzureDevOpsClientError as e:
             return f"Error: {str(e)}"

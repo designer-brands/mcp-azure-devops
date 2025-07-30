@@ -21,4 +21,4 @@ RUN uv pip install --system -e ".[dev]"
 EXPOSE 8000
 
 # Run the application, binding to all interfaces on port 8000
-CMD ["mcp-azure-devops", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "src/mcp_azure_devops/server.py"]
