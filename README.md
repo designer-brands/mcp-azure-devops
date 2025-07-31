@@ -28,16 +28,23 @@ Currently implemented:
 - **Team Area Paths**: Retrieve area paths assigned to teams
 - **Team Iterations**: Access team iteration/sprint configurations
 
-### Wiki Management
+### Wiki Search
 
 - **Search Wiki**: Search for wiki pages using a query
 - **Get Wiki Page by Path**: View complete wiki page information by path
 - **Get Wiki Page by ID**: View complete wiki page information by ID
 
+### Repository (Git) Management
+
+- **List Repositories**: View all repositories in a project.
+- **Get Repository**: Get the details of a single repository.
+- **Get Pull Requests**: Lists all active pull requests in a repository.
+- **Create Pull Request**: Creates a new pull request.
+
 Planned features:
 
 - **Pipeline Operations**: Query pipeline status and trigger new pipeline runs
-- **Pull Request Handling**: Create, update, and review Pull Requests
+- **Enhanced Pull Request Handling**: Update pull requests
 - **Sprint Management**: Plan and manage sprints and iterations
 - **Branch Policy Administration**: Configure and manage branch policies
 
