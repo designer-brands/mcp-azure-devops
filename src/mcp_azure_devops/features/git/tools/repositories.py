@@ -2,10 +2,8 @@
 Tools for Azure DevOps Git repositories
 """
 
-from mcp_azure_devops.features.git.common import (
-    AzureDevOpsClientError,
-    get_git_client,
-)
+from mcp_azure_devops.features.git.common import get_git_client
+from mcp_azure_devops.utils.exceptions import AzureDevOpsClientError
 
 
 def _format_repository(repo):
@@ -83,5 +81,5 @@ def register_tools(mcp):
         try:
             git_client = get_git_client()
             return _get_repository_impl(git_client, project, repository_id)
-        except AzureDevopsClientError as e:
+        except AzureDevOpsClientError as e:
             return f"Error: {str(e)}"
