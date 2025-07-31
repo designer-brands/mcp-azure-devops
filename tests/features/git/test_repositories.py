@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from mcp_azure_devops.features.git.tools.repositories import (
     _format_repository,
+    _get_repository_impl,
     _list_repositories_impl,
 )
 
@@ -52,8 +53,8 @@ def test_list_repositories_impl(mock_get_connection):
 
     result = _list_repositories_impl(mock_git_client, "Test Project")
 
-    assert "# Repo 1" in result
-    assert "# Repo 2" in result
+    assert "## Repo 1" in result
+    assert "## Repo 2" in result
     assert "- **ID**: 1" in result
     assert "- **ID**: 2" in result
 
@@ -70,3 +71,27 @@ def test_list_repositories_impl_no_repos(mock_get_connection):
     result = _list_repositories_impl(mock_git_client, "Test Project")
 
     assert "No repositories found in project Test Project." in result
+
+
+@patch("mcp_azure_devops.features.git.common.get_connection")
+def test_get_repository_impl(mock_get_connection):
+    """Test getting a repository."""
+    mock_git_client = MagicMock()
+    mock_get_connection.return_value.clients.get_git_client.return_value = (
+        mock_git_client
+    )
+
+    mock_repo = MagicMock()
+    mock_repo.name = "Test Repo"
+    mock_repo.id = "repo-id-123"
+    mock_repo.default_branch = "main"
+    mock_repo.web_url = "https://dev.azure.com/org/proj/_git/Test%20Repo"
+
+    mock_git_client.get_repository.return_value = mock_repo
+
+    result = _get_repository_impl(
+        mock_git_client, "Test Project", "repo-id-123"
+    )
+
+    assert "## Test Repo" in result
+    assert "- **ID**: repo-id-123" in result

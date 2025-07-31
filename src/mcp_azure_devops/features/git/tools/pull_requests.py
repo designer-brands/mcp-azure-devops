@@ -1,8 +1,10 @@
-
 """
 Tools for Azure DevOps Git pull requests
 """
 
+from typing import Optional
+
+from azure.devops.v7_1.git.models import GitPullRequestSearchCriteria
 
 from mcp_azure_devops.features.git.common import (
     AzureDevOpsClientError,
@@ -13,9 +15,11 @@ from mcp_azure_devops.features.git.common import (
 def _format_pull_request(pr):
     """Formats a pull request for display."""
     return f"""\
-# {pr.title}
+## {pr.title}
 - **ID**: {pr.pull_request_id}
 - **Status**: {pr.status}
+- **Is Draft**: {pr.is_draft}
+- **Created By**: {pr.created_by.display_name}
 - **Source Branch**: {pr.source_ref_name}
 - **Target Branch**: {pr.target_ref_name}
 - **URL**: {pr.url}
@@ -24,11 +28,11 @@ def _format_pull_request(pr):
 
 def _get_pull_requests_impl(git_client, project, repository_id):
     """Implementation of listing pull requests."""
-    search_criteria = {"status": "active"}
+    search_criteria = GitPullRequestSearchCriteria(status="active")
     prs = git_client.get_pull_requests(
-        project=project,
         repository_id=repository_id,
         search_criteria=search_criteria,
+        project=project,
     )
 
     if not prs:
@@ -97,7 +101,7 @@ def register_tools(mcp):
         source_ref_name: str,
         target_ref_name: str,
         title: str,
-        description: str = None,
+        description: Optional[str] = None,
     ):
         """
         Creates a new pull request.
@@ -130,4 +134,3 @@ def register_tools(mcp):
             )
         except AzureDevOpsClientError as e:
             return f"Error: {str(e)}"
-

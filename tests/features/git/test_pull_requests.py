@@ -3,7 +3,7 @@ Tests for the Azure DevOps Git pull request tools.
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from mcp_azure_devops.features.git.tools.pull_requests import (
     _create_pull_request_impl,
@@ -21,14 +21,19 @@ class TestPullRequests(unittest.TestCase):
         pr.title = "Test PR"
         pr.pull_request_id = 123
         pr.status = "active"
+        pr.is_draft = False
+        pr.created_by = MagicMock()
+        pr.created_by.display_name = "Test User"
         pr.source_ref_name = "features/test"
         pr.target_ref_name = "main"
         pr.url = "http://example.com/pr/123"
 
         formatted_pr = _format_pull_request(pr)
-        self.assertIn("# Test PR", formatted_pr)
+        self.assertIn("## Test PR", formatted_pr)
         self.assertIn("- **ID**: 123", formatted_pr)
         self.assertIn("- **Status**: active", formatted_pr)
+        self.assertIn("- **Is Draft**: False", formatted_pr)
+        self.assertIn("- **Created By**: Test User", formatted_pr)
 
     def test_get_pull_requests_impl_found(self):
         """Test getting pull requests when some are found."""
@@ -37,13 +42,16 @@ class TestPullRequests(unittest.TestCase):
         pr.title = "Test PR"
         pr.pull_request_id = 123
         pr.status = "active"
+        pr.is_draft = False
+        pr.created_by = MagicMock()
+        pr.created_by.display_name = "Test User"
         pr.source_ref_name = "features/test"
         pr.target_ref_name = "main"
         pr.url = "http://example.com/pr/123"
         git_client.get_pull_requests.return_value = [pr]
 
         result = _get_pull_requests_impl(git_client, "TestProject", "TestRepo")
-        self.assertIn("# Test PR", result)
+        self.assertIn("## Test PR", result)
 
     def test_get_pull_requests_impl_not_found(self):
         """Test getting pull requests when none are found."""
@@ -62,6 +70,9 @@ class TestPullRequests(unittest.TestCase):
         pr.title = "Test PR"
         pr.pull_request_id = 123
         pr.status = "active"
+        pr.is_draft = False
+        pr.created_by = MagicMock()
+        pr.created_by.display_name = "Test User"
         pr.source_ref_name = "features/test"
         pr.target_ref_name = "main"
         pr.url = "http://example.com/pr/123"
@@ -77,7 +88,7 @@ class TestPullRequests(unittest.TestCase):
             "This is a test PR.",
         )
 
-        self.assertIn("# Test PR", result)
+        self.assertIn("## Test PR", result)
         self.assertIn("- **ID**: 123", result)
 
 

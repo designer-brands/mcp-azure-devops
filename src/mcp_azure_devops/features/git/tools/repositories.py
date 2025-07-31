@@ -11,7 +11,7 @@ from mcp_azure_devops.features.git.common import (
 def _format_repository(repo):
     """Formats a repository for display."""
     return f"""\
-# {repo.name}
+## {repo.name}
 - **ID**: {repo.id}
 - **Default Branch**: {repo.default_branch}
 - **URL**: {repo.web_url}
@@ -30,6 +30,14 @@ def _list_repositories_impl(git_client, project):
         formatted_repos.append(_format_repository(repo))
 
     return "\n\n".join(formatted_repos)
+
+
+def _get_repository_impl(git_client, project, repository_id):
+    """Implementation of getting a repository."""
+    repo = git_client.get_repository(
+        project=project, repository_id=repository_id
+    )
+    return _format_repository(repo)
 
 
 def register_tools(mcp):
@@ -55,4 +63,25 @@ def register_tools(mcp):
             git_client = get_git_client()
             return _list_repositories_impl(git_client, project)
         except AzureDevOpsClientError as e:
+            return f"Error: {str(e)}"
+
+    @mcp.tool()
+    def get_repository(project: str, repository_id: str):
+        """
+        Gets a single repository.
+
+        Use this tool when you need to:
+        - Get the details of a single repository
+
+        Args:
+            project: Project name or ID
+            repository_id: Repository name or ID
+
+        Returns:
+            Formatted string containing the repository details
+        """
+        try:
+            git_client = get_git_client()
+            return _get_repository_impl(git_client, project, repository_id)
+        except AzureDevopsClientError as e:
             return f"Error: {str(e)}"
