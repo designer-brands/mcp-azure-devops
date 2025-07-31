@@ -2,7 +2,9 @@
 
 from urllib.parse import unquote
 
-from .common import AzureDevOpsClientError, get_search_client, get_wiki_client
+from mcp_azure_devops.utils.exceptions import AzureDevOpsClientError
+
+from .common import get_search_client, get_wiki_client
 
 
 def _search_wiki_impl(search_client, query):

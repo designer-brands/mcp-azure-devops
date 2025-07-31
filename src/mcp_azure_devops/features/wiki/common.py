@@ -1,22 +1,55 @@
-# Helper functions for the wiki feature
+"""
+Common utilities for Azure DevOps teams features.
+
+This module provides shared functionality used by both tools and resources.
+"""
+
+from azure.devops.v7_1.search import SearchClient
+from azure.devops.v7_1.wiki import WikiClient
+
 from mcp_azure_devops.utils.azure_client import get_connection
+from mcp_azure_devops.utils.exceptions import AzureDevOpsClientError
 
-class AzureDevOpsClientError(Exception):
-    """Custom exception for Azure DevOps client errors."""
-    pass
 
-def get_wiki_client():
-    """Get the Wiki client."""
-    try:
-        connection = get_connection()
-        return connection.clients.get_wiki_client()
-    except Exception as e:
-        raise AzureDevOpsClientError(f"Failed to get Wiki client: {str(e)}")
+def get_wiki_client() -> WikiClient:
+    """
+    Get the wiki client for Azure DevOps.
 
-def get_search_client():
-    """Get the Search client."""
-    try:
-        connection = get_connection()
-        return connection.clients.get_search_client()
-    except Exception as e:
-        raise AzureDevOpsClientError(f"Failed to get Search client: {str(e)}")
+    Returns:
+        WikiClient instance
+
+    Raises:
+        AzureDevOpsClientError: If connection or client creation fails
+    """
+    # Get connection to Azure DevOps
+    connection = get_connection()
+
+    # Get the wiki client
+    wiki_client = connection.clients.get_wiki_client()
+
+    if wiki_client is None:
+        raise AzureDevOpsClientError("Failed to get wiki client.")
+
+    return wiki_client
+
+
+def get_search_client() -> SearchClient:
+    """
+    Get the search client for Azure DevOps.
+
+    Returns:
+        SearchClient instance
+
+    Raises:
+        AzureDevOpsClientError: If connection or client creation fails
+    """
+    # Get connection to Azure DevOps
+    connection = get_connection()
+
+    # Get the wiki client
+    search_client = connection.clients.get_search_client()
+
+    if search_client is None:
+        raise AzureDevOpsClientError("Failed to get search client.")
+
+    return search_client
