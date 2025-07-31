@@ -4,13 +4,10 @@ Common utilities for Azure DevOps Git features.
 
 from azure.devops.v7_1.git import GitClient
 
-from mcp_azure_devops.utils.azure_client import get_connection
-
-
-class AzureDevOpsClientError(Exception):
-    """Exception raised for errors in Azure DevOps client operations."""
-
-    pass
+from mcp_azure_devops.utils.azure_client import (
+    AzureDevOpsClientError,
+    get_connection,
+)
 
 
 def get_git_client() -> GitClient:

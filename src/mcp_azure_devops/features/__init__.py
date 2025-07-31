@@ -1,5 +1,5 @@
 # Azure DevOps MCP features package
-from mcp_azure_devops.features import projects, teams, work_items, wiki, git
+from mcp_azure_devops.features import projects, teams, work_items, wiki, git, pipelines
 
 
 def register_all(mcp):
@@ -14,3 +14,4 @@ def register_all(mcp):
     teams.register(mcp)
     wiki.register(mcp)
     git.register(mcp)
+    pipelines.register(mcp)

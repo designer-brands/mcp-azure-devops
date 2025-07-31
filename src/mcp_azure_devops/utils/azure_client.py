@@ -14,6 +14,12 @@ from azure.devops.v7_1.work_item_tracking_process import (
 from msrest.authentication import BasicAuthentication
 
 
+class AzureDevOpsClientError(Exception):
+    """Exception raised for errors in Azure DevOps client operations."""
+
+    pass
+
+
 def get_credentials() -> Tuple[Optional[str], Optional[str]]:
     """
     Get Azure DevOps credentials from environment variables.
