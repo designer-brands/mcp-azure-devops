@@ -41,7 +41,6 @@ def _format_page(page):
         f"id: {getattr(page, 'id', 'N/A')}",
         f"path: {getattr(page, 'path', 'N/A')}",
         f"order: {getattr(page, 'order', 'N/A')}",
-        f"url: {getattr(page, 'url', 'N/A')}",
     ]
 
     if hasattr(page, "sub_pages") and page.sub_pages:
@@ -49,9 +48,7 @@ def _format_page(page):
         for sub_page in page.sub_pages:
             sub_page_details = [
                 f"  - path: {getattr(sub_page, 'path', 'N/A')}",
-                f"    id: {getattr(sub_page, 'id', 'N/A')}",
                 f"    order: {getattr(sub_page, 'order', 'N/A')}",
-                f"    url: {getattr(sub_page, 'url', 'N/A')}",
             ]
             frontmatter.extend(sub_page_details)
 
@@ -66,11 +63,14 @@ def _format_page(page):
 def _get_wiki_by_path_impl(wiki_client, project, wiki_id, path):
     """Implementation of getting a wiki page by path."""
 
-    # replace - with space and remove .md extension
-    correct_path = path.replace("-", " ")
-    if correct_path.endswith(".md"):
-        correct_path = correct_path[:-3]
+    correct_path = path
+    # If the path is for a markdown file, clean it up based on conventions
+    # *before* unquoting. This prevents replacing url-encoded dashes.
+    if path.endswith(".md"):
+        # Strip the extension first, then replace hyphens with spaces.
+        correct_path = path[:-3].replace("-", " ")
 
+    # Always unquote the path to handle any percent-encoded characters.
     correct_path = unquote(correct_path)
 
     result = wiki_client.get_page(
